@@ -1,24 +1,23 @@
-import './sign-up-form.styles.scss';
+import './sign-in-form.styles.scss';
 
 import { useState } from 'react';
 import {
-  createAuthUserWithEmailAndPassword,
   createUserDocumentFromAuth,
+  signInWithGooglePopup,
+  signInAuthUserWithEmailAndPassword,
 } from '../../utils/firebase/firebase.utils';
 
 import FormInput from '../form-input/form-input.component';
 import Button from '../button/button.component';
 
 const defaultFormFields = {
-  displayName: '',
   email: '',
   password: '',
-  confirmPassword: '',
 };
 
-export const SignUpForm = () => {
+export const SignInForm = () => {
   const [formFields, setFormFields] = useState(defaultFormFields);
-  const { displayName, email, password, confirmPassword } = formFields;
+  const { email, password } = formFields;
 
   const resetFormFields = () => {
     setFormFields(defaultFormFields);
@@ -31,38 +30,37 @@ export const SignUpForm = () => {
 
   const handleSubmit = async event => {
     event.preventDefault();
-    if (password !== confirmPassword) {
-      alert('passwords do not match');
-      return;
-    }
     try {
-      const { user } = await createAuthUserWithEmailAndPassword(
+      const response = await signInAuthUserWithEmailAndPassword(
         email,
         password
       );
-      await createUserDocumentFromAuth(user, { displayName });
       resetFormFields();
+      console.log(response);
     } catch (error) {
-      if (error.code === 'auth/email-already-in-use') {
-        alert('Cannot create user, email already in use');
+      switch (error.code) {
+        case 'auth/wrong-password':
+          alert('incorrect password');
+          break;
+        case 'auth/user-not-found':
+          alert('no user associated with this email');
+          break;
+        default:
+          console.log(error);
       }
-      console.log('create user with email and password error ' + error);
     }
+  };
+
+  const signInWithGoogle = async () => {
+    const { user } = await signInWithGooglePopup();
+    const userDocRef = await createUserDocumentFromAuth(user);
   };
 
   return (
     <div className='sign-up-container'>
-      <h2>Don't have an account?</h2>
-      <h1>Sign up with your email and password</h1>
+      <h2>Alreadyt have an account?</h2>
+      <h1>Sign in with your email and password</h1>
       <form onSubmit={handleSubmit}>
-        <FormInput
-          label='Display Name'
-          required
-          type='text'
-          onChange={handleChange}
-          name='displayName'
-          value={displayName}
-        />
         <FormInput
           label='Email'
           type='email'
@@ -79,15 +77,12 @@ export const SignUpForm = () => {
           name='password'
           value={password}
         />
-        <FormInput
-          label='Confirm Password'
-          type='password'
-          required
-          onChange={handleChange}
-          name='confirmPassword'
-          value={confirmPassword}
-        />
-        <Button type='submit'>Sign Up</Button>
+        <div className='buttons-container'>
+          <Button type='submit'>Sign In</Button>
+          <Button type='button' onClick={signInWithGoogle} buttonType='google'>
+            Google Sign In
+          </Button>
+        </div>
       </form>
     </div>
   );
