@@ -1,6 +1,6 @@
 import ProductCard from '../product-card/product-card.component';
 import { Link } from 'react-router-dom';
-import './category-preview.styles.scss';
+import './category-preview.styles.jsx';
 
 const CategoryPreview = ({ title, products }) => (
   <div className='category-preview-container'>
