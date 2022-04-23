@@ -1,4 +1,3 @@
-import { async } from '@firebase/util';
 import { initializeApp } from 'firebase/app';
 import {
   getAuth,
@@ -16,7 +15,6 @@ import {
   doc,
   getDoc,
   setDoc,
-  collections,
   writeBatch,
   collection,
   query,
@@ -35,6 +33,7 @@ const firebaseConfig = {
 };
 
 // Initialize Firebase
+// eslint-disable-next-line
 const firebaseApp = initializeApp(firebaseConfig);
 
 const googleProvider = new GoogleAuthProvider();
